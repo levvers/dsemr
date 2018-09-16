@@ -1,0 +1,48 @@
+---
+title: "Formal Time Series Models II"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+## Code used for the simulation
+
+We start by loading the Eskdalemuir data, which we have already used this weeek, and plot the time series again.
+```{r, flcolours=TRUE}
+load("../../data/week2/esktem.RData")
+plot(esktem, main="Temperatures in Eskdalemuir", col=2)
+```
+
+Next, we have to construct the covariate matrix containing the linear trend and the harmonic terms for the seasonal effect.
+```{r}
+t <- seq(1914, length=length(esktem), by=1/12)
+xreg <- cbind(t, sin(2*pi*t), cos(2*pi*t))
+```
+
+We can now use the function `auto.arima` to search for the best model.
+```{r}
+library(forecast)
+model <- auto.arima(esktem, seasonal=FALSE, xreg=xreg)
+summary(model)
+```
+Next we plot the linear trend and overlay the partial residuals (i.e. we remove the estimated seasonal effect from the temperatures to obtain what is effectively a temperature anomaly).
+
+```{r, flcolours=TRUE}
+beta <- coef(model)[5:8]
+plot(t, esktem-beta[3]*sin(2*pi*t) - beta[4]*cos(2*pi*t), col=3, xlab="Year", ylab="Long-term trend")
+title("Long-term trend")
+abline(beta[1], beta[2], lwd=2, col=2)
+```
+
+Finally we plot the seasonal effect and overlay the partial residuals (this time ew remove the long-term trend).
+
+```{r, flcolours=TRUE}
+plot(t%%1, esktem-beta[1]-beta[2]*t, xaxt="n", xlab="Month", ylab="Seasonal effect", col=3)
+title("Seasonal effect")
+axis(side=1, at=0:11/12,labels=c("Jan","Feb","Mar","Apr","May", "Jun", "Jul", "Aug","Sep","Oct", "Nov","Dec"))
+tt <- seq(0,1,len=1e4)
+lines(tt, beta[3]*sin(2*pi*tt) + beta[4]*cos(2*pi*tt), lwd=2, col=2)
+```

@@ -1,5 +1,5 @@
 ---
-title: "Introductory Example: Wind speed"
+title: "STL"
 output: md_document
 ---
 

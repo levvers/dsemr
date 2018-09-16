@@ -1,0 +1,42 @@
+---
+title: "Formal Time Series Models I"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+## AR(1) process
+The R function `arima.sim` lets us simulate ARIMA processes.
+
+```{r, flcolours=TRUE}
+x <- arima.sim(list(ar=c(0.75)), n=100)
+plot(x, xlab="Time t", ylab=expression(X[t]), col=2)
+title("MA(1) time series")
+```
+The autocorrelation function of an MA(1) drops to 0 after lag 1.
+```{r, flcolours=TRUE}
+acf(x)
+```
+The *partial* autocorrelation function of an AR(1) process decays drops to zero after lag 1.
+```{r, flcolours=TRUE}
+pacf(x)
+```
+## MA(1) process
+
+```{r, flcolours=TRUE}
+x <- arima.sim(list(ma=1), n=100)
+plot(x, xlab="Time t", ylab=expression(X[t]), col=2)
+title("MA(1) time series")
+```
+The autocorrelation function of an MA(1) drops to zero after lag 1.
+```{r, flcolours=TRUE}
+acf(x)
+```
+
+The partial autocorrelation function of an MA(1) oscillates and slowly decays to zero.
+```{r, flcolours=TRUE}
+pacf(x)
+```

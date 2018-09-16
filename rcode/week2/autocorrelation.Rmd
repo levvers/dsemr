@@ -8,3 +8,63 @@ knitr::opts_chunk$set(echo = TRUE)
 source("../theme/theme-mooc.R")
 ```
 
+## Purely random data 
+
+We first generate the data as Gaussian white noise.
+```{r}
+set.seed(1)
+x <- rnorm(100, mean=0, sd=1)
+```
+We can then plot the data ..
+```{r, flcolours=TRUE}
+plot(x, type="l", col=2, xlab="", ylab="", main="Time Series")
+```
+... and the autocorrelation function.
+```{r, flcolours=TRUE}
+acf(x, lag=25, main="Autocorrelation function")
+```
+
+## Data with a trend
+
+We first generate the data and plot it.
+```{r, flcolours=TRUE}
+set.seed(2)
+time <- 1:100
+x <- -0.1*time + rnorm(100, mean=0, sd=1)
+plot(x, type="l", col=2, xlab="", ylab="", main="Time Series")
+```
+We can then generate the autocorrelation function.
+```{r, flcolours=TRUE}
+acf(x, lag=25, main="Autocorrelation function")
+```
+The linear trend leads to a very slowly decaying autocorrelation function.
+
+## Data with a seasonal effect
+
+We first generate data with a seasonal, in our case cosine, component and plot it
+```{r, flolours=TRUE}
+set.seed(3)
+time <- 1:100
+seasonal <- 2*cos(time/(0.5*pi)/12*10)
+x <- seasonal + rnorm(100, mean=0, sd=1)
+plot(x, type="l", col=2, xlab="", ylab="", main="Time Series")
+```
+The autocorrelation function now shows a peak at the period (12) of the seasonal effect.
+```{r, flcolours=TRUE}
+acf(x, lag=25, main="Autocorrelation function")
+```
+
+## Data with a trend and a seasonal effect
+
+We finally add both a trend and seasonal component to the simulated time series.
+```{r, flcolours=TRUE}
+set.seed(4)
+time <- 1:100
+seasonal <- 2*cos(time/(0.5*pi)/12*10)
+x <- seasonal + rnorm(100, mean=0, sd=1) + 0.1*time
+plot(x, type="l", col=2, xlab="", ylab="", main="Time Series")
+```
+The autocorrelation function now shows both a slow decay and an additional peak at 12 corresponding to the period of the seasonal effect.
+```{r, flcolours=TRUE}
+acf(x, lag=25, main="Autocorrelation function")
+```
