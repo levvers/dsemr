@@ -10,9 +10,10 @@ source("../theme/theme-mooc.R")
 
 ## Data
 
-We start by loading the Wind speed data into R and ocnverting to a `ts` object.
+We start by loading the Wind speed data into R and convert the column `Newdate` into R's `Date` format.
 ```{r}
 site1 <- read.csv("../../data/week2/windspeed.csv")
+site1$Newdate <- as.Date(site1$Newdate)
 ```
 
 We can now plot the data (we'll use the formula notation `y~x` to specify what which variables to use for the x and y axes).
@@ -33,7 +34,7 @@ head(agg_mean)
 We can now plot the daily average wind speed as a line
 ```{r, flcolours=TRUE}
 plot(x~Date, data=agg_mean, ylab="Wind Speed", xlab="Year", 
-     pch=19, cex=0.2,type="l", col=2)
+     type="l", col=2)
 title("Wind Speed")
 ```
 

@@ -1,0 +1,44 @@
+---
+title: "Introductory Example: Wind speed"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+## Temperatures in Eskdalemuir
+
+We first look at the temperatures recoded in Eskdalemuir. The data is already available as a `ts` object stored in an `.RData` file).
+
+```{r}
+load("../../data/week2/esktem.RData")
+esktem
+```
+
+We can now plot the data.
+```{r, flcolours=TRUE}
+plot(esktem)
+```
+
+We can now plot the STL. 
+```{r,flcolour=TRUE}
+plot(stl(esktem, "periodic", t.window=240))
+```
+The `stl` function sometimes needs a little "help" to get the degree of smoothness of the components right. This can be done by setting the width of the window of the smoother. We have manually set the window for the trend to 240, which produces a smoother trend.
+
+If you are wondering how R knows what the prediod of the seasonal effect is. It 
+obtains this from the frequency information stored in the time series data.
+```{r}
+attr(esktem, "tsp")
+```
+It is important this value is set correctly before using `stl`.
+
+## Atmospheric CO<sub>2</sub> in Mauna Loa
+
+We start by loading the data as a `ts` object, which we have stored in an earlier step.
+```{r}
+load("../../data/week2/maunaloa.RData")
+plot(stl(loadata, "periodic"))
+```

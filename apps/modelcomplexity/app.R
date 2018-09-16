@@ -1,10 +1,6 @@
 library(shiny)
 
-set.seed(123)
-load("weatherdata.RData")
-x <- sample(1:(365*2),30)
-data <- weatherdata$temp_avg[x]
-data <- data+0.5-runif(length(data))
+load("data.RData")
 
 fwd <- function(x)
     sign(x) * log(abs(x)+1)
@@ -139,14 +135,8 @@ server <- function(input, output, session) {
         plot(x, data, xlab="Years", ylab="Temperature", pch=16,xlim=c(1,365*3), ylim=range(data)+c(-10,10), xaxt="n")
         abline(v=2*365)
         axis(1, at=1+365*0:3,0:3)
-#        X <- create.harmonic.design(x, locals$p)
-#        colnames(X)  <-  paste0("X",1:ncol(X))
-#        dat <- data.frame(X, y=data)
-#        mod <- lm(y~.-1, data=dat)
-#        xx <- seq(1, 365*3)
+        xx <- seq(1, 365*3)
         XX <- create.harmonic.design(xx, locals$p)
-#        colnames(XX) <- colnames(X)
-                                        #        yy <- predict(mod, data.frame(XX), interval="prediction")# prediction")
         coef <- rep(0,locals$p)
         lst <- reactiveValuesToList(input)
         for (i in 1:locals$p) {

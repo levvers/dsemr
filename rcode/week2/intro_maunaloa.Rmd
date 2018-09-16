@@ -33,23 +33,23 @@ Now we can plot the data
 plot(loadata)
 ```
 
-On FutueLearn we have use a different colour (`col=2`), points rather than lines (`type="l"`), a different plotting symbol (`pch=15`) and a smaller plotting symbol (`cex=0.5`).
-```{r}
+On FutureLearn we have use a different colour (`col=2`), points rather than lines (`type="l"`), a different plotting symbol (`pch=15`) and a smaller plotting symbol (`cex=0.5`).
+```{r, flcolours=TRUE}
 plot(loadata, col=2, type="p", pch=16, cex=0.5,
      xlab="Year", ylab="Carbon dioxide level (ppmnv)")
 title(expression("Mauna Loa CO"[2]*" levels"))
 ```
 
-Too better see the periodic nature of the time series we zoom into the period from 2010 to 2018. We do thsi by specifying `xlim=c(2010,2018)`.
-```{r}
+Too better see the periodic nature of the time series we zoom into the period from 2010 to 2018. We do this by specifying `xlim=c(2010,2018)`.
+```{r, flcolours=TRUE}
 plot(loadata, col=2, type="p", pch=16, cex=0.5, 
      xlim=c(2010, 2018),
      xlab="Year", ylab="Carbon dioxide level (ppmnv)")
 title(expression("Mauna Loa CO"[2]*" levels"))
 ```
 
-Alternatively we can subset the time series object using teh function `subset` from the pakcage `forecast`.
-```{r}
+Alternatively we can subset the time series object using the function `subset` from the package `forecast`.
+```{r, flcolours=TRUE}
 library(forecast)
 loashort <- subset(loadata, start=623, end=718)
 plot(loashort, col=2, type="p", pch=16, cex=0.5,
