@@ -1,0 +1,58 @@
+---
+title: "Introductory Example: Atmospheric Carbon Dioxide at Manua Loa"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+## Data
+
+We start by loading the Mauna Loa data into R.
+```{r}
+loadata <- read.csv("../../data/week2/maunaloa.csv")
+head(loadata)
+```
+
+At this stage we are interested in the column `average`, which we will now convert in to a `ts` object, the data structure for time series in R. 
+
+```{r}
+loadata <- ts(loadata$average, start=c(1958,3), frequency=12)
+loadata
+```
+We will now save this as an `.RData` files, so we can go straight to the `ts` object when we analyse the time series later on.
+
+```{r}
+save(loadata, file="../../data/week2/maunaloa.RData")
+```
+
+Now we can plot the data 
+```{r}
+plot(loadata)
+```
+
+On FutueLearn we have use a different colour (`col=2`), points rather than lines (`type="l"`), a different plotting symbol (`pch=15`) and a smaller plotting symbol (`cex=0.5`).
+```{r}
+plot(loadata, col=2, type="p", pch=16, cex=0.5,
+     xlab="Year", ylab="Carbon dioxide level (ppmnv)")
+title(expression("Mauna Loa CO"[2]*" levels"))
+```
+
+Too better see the periodic nature of the time series we zoom into the period from 2010 to 2018. We do thsi by specifying `xlim=c(2010,2018)`.
+```{r}
+plot(loadata, col=2, type="p", pch=16, cex=0.5, 
+     xlim=c(2010, 2018),
+     xlab="Year", ylab="Carbon dioxide level (ppmnv)")
+title(expression("Mauna Loa CO"[2]*" levels"))
+```
+
+Alternatively we can subset the time series object using teh function `subset` from the pakcage `forecast`.
+```{r}
+library(forecast)
+loashort <- subset(loadata, start=623, end=718)
+plot(loashort, col=2, type="p", pch=16, cex=0.5,
+     xlab="Year", ylab="Carbon dioxide level (ppmnv)")
+title(expression("Mauna Loa CO"[2]*" levels"))
+```
