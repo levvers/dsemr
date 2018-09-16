@@ -1,5 +1,5 @@
-Code used for the simulation
-----------------------------
+Temperatures in Eskdalemuir
+---------------------------
 
 We start by loading the Eskdalemuir data, which we have already used
 this weeek, and plot the time series again.
