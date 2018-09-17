@@ -1,0 +1,56 @@
+---
+title: "Forecasting"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+We start by loading the NO<sub>2</sub> data.
+```{r}
+load("../../data/week2/glasgowno2.RData")
+```
+
+We start by plotting the data.
+```{r, flcolours=TRUE}
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+```
+
+Next, we fit a time series model using a trend and diurnal ("seasonal") component. The diurnal pattern looks more complex than a straight sine curve, so we will also include higher frequency terms.
+```{r}
+t <- 1:length(no2)
+xreg <- cbind(t, sin(2*pi*t/24), cos(2*pi*t/24),  sin(2*pi*t/12), cos(2*pi*t/12), 
+              sin(2*pi*t/6), cos(2*pi*t/6))
+model <- arima(no2, order=c(2,0,0), xreg=xreg)
+summary(model)
+```
+We can now add the 
+```{r, flcolours=TRUE}
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+lines(1+t/24, cbind(1,xreg)%*%coef(model)[3:10], col=3)
+```
+
+
+To forecast for the next 52 hours we have to create the `xreg` matrix corresponding to $t=142,\ldots,192$.
+```{r}
+newt <- length(no2)+1:52
+newxreg <- cbind(newt, sin(2*pi*newt/24), cos(2*pi*newt/24),  sin(2*pi*newt/12),  
+                 cos(2*pi*newt/12), sin(2*pi*newt/6), cos(2*pi*newt/6))
+forecast <- predict(model, n.ahead=52, newxreg=newxreg)
+```
+
+We can now add the forecast to the plot.
+```{r, flcolours=TRUE}
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+lines(1+t/24, cbind(1,xreg)%*%coef(model)[3:10], col=3)
+lines(1+newt/24, forecast$pred, col=4)
+abline(v=1+140/24, lty=2)
+```

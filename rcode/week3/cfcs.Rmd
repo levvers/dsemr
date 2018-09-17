@@ -1,0 +1,30 @@
+---
+title: "CFCs"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+load("../../data/week3/cfcs.RData")
+plot(cfcs, xlab="", ylab="CFC-12 [ppt]", col=2)
+```
+
+Wewill now fit the bent cable model to it.
+```{r, echo=FALSE, results="hide", fig.keep="none", fig.wikdth=15, fig.height=15}
+library(bentcableAR)
+png(height=600*4, width=1800, res=150)
+source("~/dsemr/rcode/theme/theme-mooc.R")
+model <- bentcable.ar(cfcs, p=1, init.cable=c(250, 1.5,  -1.5, 200, 100))
+dev.off()
+```
+
+```{r}
+plot(cfcs, xlab="", ylab="CFC-12 [ppt]", col=2)
+abline(v=model$ctp$change.hat/12+1977.584)
+abline(v=model$ctp$interval/12+1977.584, lty=3)
+abline(v=(model$cable$estimate[4]+c(-1,1)*model$cable$estimate[5])/12+1977.584, lty=2)
+```

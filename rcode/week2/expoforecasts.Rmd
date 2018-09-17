@@ -1,0 +1,55 @@
+---
+title: "Exponential Forecasting"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+We start by loading the NO<sub>2</sub> data.
+```{r}
+load("../../data/week2/glasgowno2.RData")
+```
+
+We start by plotting the data, just like in the previous step.
+```{r, flcolours=TRUE}
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+```
+Fitting and forecassting from an exponential smoothing model is however much easier. We use the function `ets` from the package forecast. The argument `model` lets us specify the type of model. The first letter specifies the error type. The second letter denotes the trend type and the third letter the type of sesonal term ("N" - exclude term, "A" - additive term, "M" - multiplicative term, or "Z" - automatic selection). We want everything to be chosen automatically, so we will use `model="ZZZ"`.
+
+```{r}
+library(forecast)
+model <- ets(no2, model="ZZZ")
+summary(model)
+forecast <- forecast(model, n.ahead=52)
+```
+
+
+
+We can now add the forecasts to the plot.
+```{r, flcolours=TRUE}
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+newt <- length(no2)+1:48
+abline(v=1+140/24, lty=2)
+lines(1+newt/24, forecast$mean, col=4)
+```
+The predictions seem a little low and illustrate a problem with exponential forecasting. The automatic algorithm selected $\alpha$ to be almost 1, i.e. virtually only the last value is being used. Manually forcing a lower value of $\alpha$ improved the predictions a lot.
+
+```{r}
+library(forecast)
+model <- ets(no2, model="ZZZ", alpha=0.15)
+summary(model)
+forecast <- forecast(model, n.ahead=52)
+plot(no2, axes=FALSE, ylab=expression(NO[2]),xlim=c(1,9), col=2)          
+axis(2)
+axis(1, labels=c("31/01", "01/02", "02/02", "03/02", "04/02", "05/02", "06/02", "07/02", "08/02"), at=1:9)
+newt <- length(no2)+1:48
+abline(v=1+140/24, lty=2)
+lines(1+newt/24, forecast$mean, col=4)
+```
