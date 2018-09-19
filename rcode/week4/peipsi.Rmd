@@ -1,0 +1,58 @@
+---
+title: "Lake Peipsi"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+library(geoR)
+load("../../data/week4/peipsi.RData")
+head(peipsi)
+peipsi <- as.geodata(peipsi)
+```
+
+```{r}
+library(MASS)
+library(colorspace)
+library(fields)
+par(mar=rep(0.1,4))
+eqscplot(lakecoords, type="l", xaxt="n", yaxt="n", bty="n")
+cols = diverge_hcl(64)
+grp <- as.integer(cut(c(5,15, peipsi$data), breaks=64, labels=1:64)[-(1:2)])
+points(peipsi$coords, pch=21, bg=cols[grp], cex=1.5)
+image.plot(range(lakecoords), range(lakecoords), NULL, zlim=c(5,15), col=cols, legend.only=TRUE)
+```
+
+```{r}
+vario <- variog(peipsi)
+plot(vario)
+# Estimate covariance parameters with maximum likelihood
+reml.est <- likfit(peipsi, ini.cov.pars=c(0.5,0.01), method = "RML")
+lines(reml.est, col=2)
+```
+
+
+
+```{r}
+library(mgcv)
+xbase <- seq(min(lakecoords[,1]), max(lakecoords[,1]), len=100)
+ybase <- seq(min(lakecoords[,2]), max(lakecoords[,2]), len=100)
+             
+grid <- expand.grid(x=xbase, y=ybase)
+library(mgcv)
+library(fields)
+keep <- in.out(bnd=lakecoords,x=as.matrix(grid))
+kriging <- krige.conv(geodata=peipsi, locations=grid, krige=krige.control(obj.model=reml.est))
+kriging$predict[!keep]<-NA
+par(mar=rep(0.1,4))
+eqscplot(lakecoords, type="n", bty="n", xaxt="n", yaxt="n")
+image.plot(xbase, ybase, matrix(kriging$predict, ncol=length(xbase)), zlim=c(5,15), col=cols, add=TRUE)
+lines(lakecoords)
+points(peipsi$coords, pch=21, bg=cols[grp], cex=1.5)
+```
+
+

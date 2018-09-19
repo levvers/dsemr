@@ -1,0 +1,68 @@
+---
+title: "Larynx cancer in Germany"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+The data will be using is available in the package `INLA`.
+
+```{r}
+library(INLA)
+data(Germany)
+```
+
+We start with plotting the raw data (not very useful) ...
+```{r, fig.width=7, fig.height=7}
+library(colorspace)
+library(spam)
+col = diverge_hcl(20)
+germany.plot(Germany$Y, col=col, legend=TRUE, main="Raw counts")
+```
+
+... and the SIR (more useful).
+```{r, fig.width=7, fig.height=7}
+germany.plot(Germany$Y/Germany$E, col=col, legend=TRUE, main="SIR")
+```
+
+To be able to compute Moran's I, we need to know which disctricts are neighbours. We create a matrix $\mathbf{N}$, so that $N_{ij}$ is `TRUE` if districts $i$ and $j$ are neighbours.
+```{r}
+# Read in neighbourhood list
+g <- system.file("demodata/germany.graph", package="INLA")
+gs <- sapply(strsplit(scan(g, what="string", sep="\n")," "), as.integer)
+library(Matrix)
+N <- Matrix(FALSE, nrow=gs[[1]], ncol=gs[[1]], sparse=TRUE)
+for (pos in 2:length(gs)) {
+  id <- gs[[pos]][1]
+  sub <- gs[[pos]][-(1:2)]
+  N[id, sub] <- TRUE
+}
+```
+
+We can now compute Moran's I and test whether it is significantly different from 0.
+```{r}
+library(spdep)
+moran.mc(Germany$Y/Germany$E, mat2listw(N), nsim=1e4)
+```
+
+We next illustrate the graph structure.
+```{r, fig.width=7, fig.height=7}
+plot(germany.poly, type="l", xlab="", ylab="", xaxt="n", yaxt="n", bty="n", col=rgb(0,0,0,0.25))
+points(germany.info$xrep, germany.info$yrep,pch=16, cex=0.75)
+for (i in 1:(nrow(N)-1))
+     for (j in (i+1):nrow(N))
+       if (N[i,j])
+         segments(germany.info$xrep[i], germany.info$yrep[i], germany.info$xrep[j], germany.info$yrep[j])
+```
+
+We can now fit a CAR model.
+```{r, fig.width=7, fig.height=7}
+Germany$region.copy <- Germany$region
+formula = Y~f(region.copy, model="besag", graph=g, hyper=list(prec=list(param =c(1,0.01))), constr = TRUE ) +  f(region, model="iid", hyper=list(prec=list(param=c(1,0.01))))
+res.ger = inla (formula=formula , family="poisson", E=E , data=Germany)
+col = diverge_hcl(20)
+germany.plot(exp(res.ger$summary.random$region.copy$'0.5quant'), col=col, legend=TRUE)
+```
