@@ -1,0 +1,72 @@
+---
+title: "Handling dates in R"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+## Dates in R
+
+The functions from the package [lubridate](Temperatures in Eskdalemuir) are very helpful when working with dates in R. YOu can install the package by entering the command
+```r
+install.packages("lubridate")
+```
+or by clicking on the *Install* button in the *Packages* tab in the bottom-right pane in RStudio.
+
+## Create date objects in R
+
+### Dates from strings
+Often, we obtain the date as a simple character string, like `"15 October 2018"`. `lubridate` has a number of functions to convert these to internal date (and datetime) objects. The function names are combinatins of the letter `d`, `m` and `y` and depend on how the date has been specified
+```{r}
+library(lubridate)
+course.start <- dmy("15 October 2018")
+course.start <- dmy("Monday, 15 October 2018")       # Also works, dmy simply ignores the weekday
+course.start <- ymd("2018/10/15")
+course.start
+```
+We can also specify the date and time.
+```{r}
+course.start <- dmy_hms("15 October 2018 9:00:00")
+course.start
+```
+
+### Dates from sepearate variables for the components
+Sometimes, the date is available as separate variables (or columns in a dataset). We can then create a date (or datetime) oject using
+```{r}
+course.end <- make_datetime(2018, 11, 25, 23, 59, 59)
+course.end
+```
+We can also include time zone information (e.g. `tz="Europe/London"`), but we will not at this in more detail.
+
+### Relative dates
+We can also specify dates relative to one another, so we could have used
+```{r}
+course.end <- make_datetime(2018, 11, 26) - seconds(1)
+course.end
+```
+
+## Decimal dates
+We can create decimal dates by simply using the function
+```{r}
+decimal_date(course.end)
+```
+
+
+We can go the other way round using
+```{r}
+date_decimal(2018.90136985)
+```
+
+## Periodsm durations and intervals
+To find out the length a time period, we first create a time interval and then divide by the unit we want to obtain.
+```{r}
+course.start%--%course.end
+(course.start%--%course.end) / dyears(1)
+(course.start%--%course.end) / dweeks(1)
+```
+
+## If you want to learn more
+The [cheatsheet for `lubridate`](https://rawgit.com/rstudio/cheatsheets/master/lubridate.pdf) and the [chapter *Date and time* from *R for Data Science*](http://r4ds.had.co.nz/dates-and-times.html) contains more information and examples.
