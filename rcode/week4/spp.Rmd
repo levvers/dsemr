@@ -37,3 +37,20 @@ We can then download the map tiles. The argument `zoom` controls the resolution 
 m <- get_stamenmap(bb,  maptype = "toner", zoom=14)
 ggmap(m) + geom_point(data=data, aes(x=Longitude, y=Latitude), color=flcolours$flpink, pch=4)
 ```
+
+
+```{r}
+library(spatstat)
+
+
+xrange <- seq(min(data$Longitude), max(data$Longitude), len=128)
+yrange <- seq(min(data$Latitude), max(data$Latitude), len=128)
+/
+ppdata <- ppp(data$Longitude, data$Latitude, range(data$Longitude), range(data$Latitude), mask=mask)
+
+plot(Kest(ppdata))
+```
+
+```{r}
+image(density(ppdata))
+```
