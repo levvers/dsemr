@@ -1,0 +1,43 @@
+---
+title: "Extremes"
+output: #md_document
+        html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+library(ismev)
+library(evd)
+
+load("../../data/week3/ewe.RData")
+ewe <- subset(ewe, !(month==2 & day==29))                         # Get rid of data for February 29th (R's ts objects can't handle leap years)
+ewe_ts<- ts(log(ewe$flow), frequency=365, start=c(1970, 291))         
+
+plot(ewe_ts, xlab="Year", ylab="Flow", type="p", col=2)
+
+library(dplyr)
+temp <- ewe %>% group_by(year) %>% summarise(max_flow=max(log(flow)))
+
+plot(ewe_ts, xlab="Year", ylab="Flow", type="p", col="lightgrey")
+segments(1970:2008, temp$max_flow, (1970:2008) + 364/365, temp$max_flow, col=2)
+
+abline(v=1970:2009, lty=2)
+title("Block maxima")
+
+threshold <- 4.75
+t <- 1970+(290+1:length(ewe_ts))/365
+plot(t, ewe_ts, xlab="Year", ylab="Flow", type="p", col=ifelse(ewe_ts>threshold, palette()[2], "lightgrey"))
+abline(h=threshold)
+title("Peak over Threshold")
+#subset <- ewe_ts>threshold
+#segments(t[subset], threshold, t[subset], as.numeric(ewe_ts)[subset], col=2)
+
+
+
+
+
+```
