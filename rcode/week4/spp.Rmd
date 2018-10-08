@@ -1,0 +1,39 @@
+---
+title: "Spatial Point Processes"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+We start by loading in the data and select one day.
+
+```{r, flcolours=TRUE}
+load("../../data/week4/particles.RData")
+```
+
+We plot the locations of the findings using `ggmap`.
+```{r}
+library(ggmap)
+```
+We first need to identify the "bounding box", i.e. what area the maps is meant to show. We will enrlage it by a factor of 3.
+```{r}
+bb <- c(apply(data[,c("Longitude", "Latitude")], 2, range))
+names(bb) <- c("left", "right", "bottom", "top")
+enlarge <-  function(bb, w=3) {
+    bb <- c(bb["left"]*(1+w)/2+bb["right"]*(1-w)/2,
+           bb["left"]*(1-w)/2+bb["right"]*(1+w)/2,
+           bb["top"]*(1+w)/2+bb["bottom"]*(1-w)/2,
+           bb["top"]*(1-w)/2+bb["bottom"]*(1+w)/2)
+    names(bb) <- c("left", "right", "top", "bottom")
+    bb
+}
+bb <- enlarge(bb)
+```
+We can then download the map tiles. The argument `zoom` controls the resolution of the map tiles.
+```{r}
+m <- get_stamenmap(bb,  maptype = "toner", zoom=14)
+ggmap(m) + geom_point(data=data, aes(x=Longitude, y=Latitude), color=flcolours$flpink, pch=4)
+```

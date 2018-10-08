@@ -1,0 +1,98 @@
+---
+title: "Visualisation of Properties of Spatial Point Processes"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+
+We will need functions from the package `spatstat`.
+
+```{r, flcolours=TRUE}
+library(spatstat)
+```
+
+```{r}
+set.seed(123)
+csr <- ppp(x=runif(90), y=runif(90), window=square(1))
+nonunif <-ppp(x=runif(90)^0.5, y=runif(90)^0.5, window=square(1))
+```
+
+
+```{r, fig.width=8, fig.height=4, flcolours=TRUE}
+par(mfrow=c(1,2))
+par(mar=c(0.1,0.1,0.1,0.1))
+plot(csr,cols=2,main="")
+drwlin <- function() {
+    segments(1/3,0,1/3,1, lty=2)
+    segments(2/3,0,2/3,1, lty=2)
+    segments(1,1/3,0,1/3, lty=2)
+    segments(1,2/3,0,2/3, lty=2)
+}
+cnt <- function(x) {
+    for (i in 1:3)
+        for (j in 1:3) {
+            a <- sum((i-1)/3<x$x & x$x<i/3 & (j-1)/3<x$y & x$y<j/3)
+            text((i-0.5)/3, (j-0.5)/3, a, cex=2, col=rgb(0.75,0.75,0.75,0.5), adj=c(0.5,0.5))
+        }
+}
+drwlin()
+cnt(csr)
+plot(nonunif,cols=2, main="")
+drwlin()
+cnt(nonunif)
+```
+
+
+```{r, fig.width=8, fig.height=4, flcolours=TRUE}
+par(mfrow=c(1,2))
+par(mar=c(0.1,0.1,0.1,2.1))
+csr.density <- density(csr)
+nonunif.density <- density(nonunif)
+image(density(csr), zlim=range(c(csr.density$v, nonunif.density$v)), main="")
+image(density(nonunif), zlim=range(c(csr.density$v, nonunif.density$v)), main="")
+
+
+
+```
+
+```{r}
+set.seed(123)
+nclust <- function(x0, y0, radius, n) {
+              return(runifdisc(n, radius, centre=c(x0, y0)))
+            }
+clustered <- rPoissonCluster(90, 0.1, nclust, radius=0.1, n=10)[1:90,]
+csr <- ppp(x=runif(90), y=runif(90), window=square(1))
+regular <- rDiggleGratton(250, 0.05, 0.05)[1:90,]
+```
+
+```{r, fig.width=9, fig.height=3, flcolours=TRUE}
+par(mfrow=c(1,3))
+par(mar=c(0.1,0.1,2,0.1))
+plot(clustered, main="Clustered process",cols=2)
+par(mar=c(0.1,0.1,2,0.1))
+plot(csr, main="Complete spatial randomness", cols=2)
+par(mar=c(0.1,0.1,2,0.1))
+plot(regular, main="Regular process",cols=2)
+```
+
+```{r, fig.width=9, fig.height=3, flcolours=TRUE}
+par(mar=c(5.1, 4.1, 4.1, 2.1))
+par(mfrow=c(1,3))
+plot(Kest(clustered))
+plot(Kest(csr))
+plot(Kest(regular))
+```
+
+```{r, fig.width=9, fig.height=3, flcolours=TRUE}
+par(mfrow=c(1,3))
+par(mar=c(0.1,0.1,2,0.1))
+fryplot(clustered, cols=2)
+par(mar=c(0.1,0.1,2,0.1))
+fryplot(csr, cols=2)
+par(mar=c(0.1,0.1,2,0.1))
+fryplot(regular, cols=2)
+```

@@ -1,0 +1,49 @@
+---
+title: "Data Visualisation on Maps"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+We start by loading in the data and select one day.
+
+```{r, flcolours=TRUE}
+vandata <- read.csv("../../data/week5/AirQualityData.csv")
+oneday <- subset(vandata, substr(Time,1,10)=="03/10/2016")
+```
+
+### ggmap
+
+The code below produces a plot using `ggmaps`.
+```{r}
+library(ggmap)
+```
+We first need to identify the "bounding box", i.e. what area the maps is meant to show.
+```{r}
+bb <- c(apply(oneday[,c("Longitude", "Latitude")], 2, range))
+names(bb) <- c("left", "right", "bottom", "top")
+```
+We can then download the map tiles. The argument `zoom` controls the resolution of the map tiles.
+```{r}
+m <- get_stamenmap(bb,  maptype = "toner", zoom=13)
+```
+We can then create the map plot.
+```{r}
+ggmap(m) + geom_point(data=oneday, aes(x=Longitude, y=Latitude,  col=PM.10)) + scale_colour_distiller(palette="RdYlGn")
+```
+
+### Leaflet
+
+```r
+library(RColorBrewer)
+library(leaflet)
+colour <- rev(brewer.pal("RdYlGn", n=9))[cut(oneday$PM.10, breaks=9, labels=1:9)]
+m <- leaflet() %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    addCircles(oneday$Longitude, oneday$Latitude, color=colour, opacity=1, fillOpacity=0.5, radius=25, weight=2)
+
+
+```
