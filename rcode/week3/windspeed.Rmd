@@ -1,0 +1,39 @@
+---
+title: "Wind speeds in Claremorris"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+load("../../data/week3/wind.RData")
+plot(wind, xlab="Year", ylab="Wind speed in knots")
+```
+
+```{r, flcolours=TRUE}
+library(changepoint)
+par(mfrow=c(1,2))
+plot(cpt.meanvar(wind, method="PELT", penalty="Hannan-Quinn"))
+title("Hannan-Quinn penalty")
+plot(cpt.meanvar(wind, method="PELT", penalty="BIC"))
+title("BIC penalty")
+```
+
+```{r, flcolours=TRUE}
+plot(diff(wind), xlab="Year", ylab="Wind speed differences in knots")
+```
+
+
+
+```{r, flcolours=TRUE}
+library(changepoint)
+par(mfrow=c(1,2))
+plot(cpt.var(diff(wind), method="PELT", penalty="Hannan-Quinn"))
+title("Hannan-Quinn penalty (differences)")
+plot(cpt.var(diff(wind), method="PELT", penalty="BIC"))
+title("BIC penalty (differences)")
+```
+

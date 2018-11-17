@@ -1,0 +1,35 @@
+---
+title: "River flow in the river Niles"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+load("../../data/week3/nile.RData")
+plot(nile_flow, xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"))
+```
+
+```{r, flcolours=TRUE}
+library(changepoint)
+plot(cpt.mean(nile_flow, method="PELT"), xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"))
+```
+
+
+
+```{r}
+set.seed(123)
+```
+
+```{r, flcolours=TRUE}
+library(segmented)
+nile <- data.frame(year=1871:1984, flow=nile_flow)
+model <- segmented(lm(flow~year, data=nile), seg=~year, psi=c(1900,1930,1960))
+plot(nile, xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"), type="l")
+plot(model, add=TRUE, col=2, lwd=2)
+title("Model assuming changes in slope")
+summary(model)
+```
