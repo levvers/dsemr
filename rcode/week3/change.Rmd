@@ -1,0 +1,52 @@
+---
+title: "Detecting change"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+```{r, flcolours=TRUE}
+t <- 1:100
+x <- rep(c(1,2),c(70,30))+0.5*rnorm(100)
+plot(t, x, xlab="Time", ylab=expression(X[t]))
+abline(v=70, col=2)
+segments(-5,1,70,1,col=3, lwd=2)
+segments(70,2,105,2,col=3, lwd=2)
+mtext(expression(tau), line=1, at=70, col=2)
+mtext(expression(mu[1]), line=1, at=1, col=2, side=4, las=1)
+mtext(expression(mu[2]), line=1, at=2, col=2, side=4, las=1)
+```
+
+```{r, flcolours=TRUE}
+par(mfrow=c(1,3))
+set.seed(123)
+t <- 1:100
+lens <- c(40,15,25,20)
+x <- rep(c(1,3,2,4),lens)+0.5*rnorm(100)
+cuts <- cumsum(lens)[-length(lens)]
+draw <- function(cuts) {
+    cuts2 <- c(0,cuts,100)
+    cuts3  <-  cuts2
+    cuts3[1] <- cuts2[1]-10
+    cuts3[length(cuts2)] <- cuts2[length(cuts2)]+10    
+    for (i in 2:length(cuts2)) {
+        m <- mean(x[(cuts2[i-1]+1):cuts2[i]])
+        segments(cuts3[i-1],m,cuts3[i],m, lwd=2, col=3)
+    }
+    abline(v=cuts, col=2)
+}
+plot(t, x, xlab="Time", ylab=expression(X[t]))
+draw(40)
+title("1 Changepoint?")
+plot(t, x, xlab="Time", ylab=expression(X[t]))
+draw(cuts)
+title("3 Changepoints?")
+plot(t, x, xlab="Time", ylab=expression(X[t]))
+draw(c(20,40,55,67,80,90))
+title("6 Changepoints?")
+```
+
+
