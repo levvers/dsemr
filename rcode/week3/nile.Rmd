@@ -1,5 +1,5 @@
 ---
-title: "River flow in the river Niles"
+title: "River flow in the river Nile"
 output: md_document
 ---
 
@@ -8,25 +8,30 @@ knitr::opts_chunk$set(echo = TRUE)
 source("../theme/theme-mooc.R")
 ```
 
+We start by loading the data and create a plot of the water flow.
 ```{r, flcolours=TRUE}
 load("../../data/week3/nile.RData")
 plot(nile_flow, xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"))
 ```
 
+We next fit a changepoint model looking for changepoints in the mean.
 ```{r, flcolours=TRUE}
 library(changepoint)
 plot(cpt.mean(nile_flow, method="PELT"), xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"))
 ```
 
+This is not very useful, as we are interested in changes to the slope rather than changes in the mean (a linear trend means constant changes to the mean).
 
-
-```{r}
-set.seed(123)
+```{r, echo=FALSE}
+set.seed(123)                    # Setting seed for reproducability
 ```
 
+The R package `segmented` allows us to fit piece-wise linear models. 
 ```{r, flcolours=TRUE}
 library(segmented)
+# The function segmented needs the data in a data frame, rather than a ts object
 nile <- data.frame(year=1871:1984, flow=nile_flow)
+# The function segmented needs some initial guesses of when the changepoint were
 model <- segmented(lm(flow~year, data=nile), seg=~year, psi=c(1900,1930,1960))
 plot(nile, xlab="Year", ylab=expression("Flow [10"^9*m^3*"]"), type="l")
 plot(model, add=TRUE, col=2, lwd=2)

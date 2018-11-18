@@ -8,11 +8,15 @@ knitr::opts_chunk$set(echo = TRUE)
 source("../theme/theme-mooc.R")
 ```
 
+d 
+
+We start with loading the data.
 ```{r, flcolours=TRUE}
 load("../../data/week3/wind.RData")
 plot(wind, xlab="Year", ylab="Wind speed in knots")
 ```
 
+We start by looking for changes in the mean and the variance.
 ```{r, flcolours=TRUE}
 library(changepoint)
 par(mfrow=c(1,2))
@@ -22,11 +26,15 @@ plot(cpt.meanvar(wind, method="PELT", penalty="BIC"))
 title("BIC penalty")
 ```
 
+We obtain a lot of changepoint, to a large extent due to the high autocorrelation in the data. We can try to reduce this autocorrelation by looking at the differences between observations, rather than the original data.
+
+A plot of the differences is shown in the plot below.
+
 ```{r, flcolours=TRUE}
 plot(diff(wind), xlab="Year", ylab="Wind speed differences in knots")
 ```
 
-
+The changepoint model now appears to give more a more realistic picture of the changepoints.
 
 ```{r, flcolours=TRUE}
 library(changepoint)
