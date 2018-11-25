@@ -1,0 +1,64 @@
+---
+title: "Missing values"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../theme/theme-mooc.R")
+```
+
+We start by loading the data from the CSV file.
+```{r}
+site1 <- read.csv("../../data/week2/windspeed.csv")
+site1$Newdate <- as.Date(site1$Newdate)
+```
+We will only keep data for the year 2013 and calculate daily averages.
+```{r}
+site1 <- subset(site1, Newdate>="2013-01-01" & Newdate<="2013-12-31")
+mean_speed <- aggregate(WindSpeed ~ Newdate, data=site1, mean, na.action=na.pass)
+```
+We can now plot the data
+```{r}
+plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l")
+```
+
+Using the package [`imputeTS`](https://cran.r-project.org/web/packages/imputeTS/index.html) we can visualise where the missing values are.
+```{r}
+library(imputeTS)
+plotNA.distribution(x=mean_speed$WindSpeed, colPoints=2, colBackgroundMV=3)
+```
+Another helpful plot is the distribution bar, which shows where observations are missing.
+```{r}
+plotNA.distributionBar(x=mean_speed$WindSpeed)
+```
+
+If we want to fit a model to the data which cannot work with missing values (and unfortunately very few models can cope with missing values), we need to impute some values.
+
+We can impute the overall mean. This is the simplest, but not a very sophisticated approach.
+
+```{r}
+mean_speed_imp <- na.mean(mean_speed)
+```
+We could now work with this data set, but let's first visualise the imputed values.
+```{r}
+plotNA.imputations(mean_speed$WindSpeed,mean_speed_imp$WindSpeed)
+```
+
+We can also impute values, based on a time series model. This usually gives more realistic results, but is highly dependent on whether the time series model is suitable or not.
+
+```{r}
+mean_speed_imp <- na.kalman(mean_speed)
+plotNA.imputations(mean_speed$WindSpeed,mean_speed_imp$WindSpeed)
+```
+
+In this particular example, there is actually a much easier solution. The missing values for the daily time series is only due to there being missing values for a small number of hours for each day. So far we have made the daily mean a missing value (`NA`) as soon as the hourly measurements were missing for a single hour. 
+
+Instead, we could simply calculate the daily average from the other hours of the day, so that we would only get missing values if we had no measurements at all for that day.
+```{r}
+mean_speed <- aggregate(WindSpeed ~ Newdate, data=site1, mean, na.action=na.omit)
+```
+This dataset now contains no missing values at all.
+```{r}
+plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l")
+```
