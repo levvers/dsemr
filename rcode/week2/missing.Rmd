@@ -19,17 +19,17 @@ site1 <- subset(site1, Newdate>="2013-01-01" & Newdate<="2013-12-31")
 mean_speed <- aggregate(WindSpeed ~ Newdate, data=site1, mean, na.action=na.pass)
 ```
 We can now plot the data
-```{r}
-plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l")
+```{r, flcolours=TRUE}
+plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l", col=2)
 ```
 
 Using the package [`imputeTS`](https://cran.r-project.org/web/packages/imputeTS/index.html) we can visualise where the missing values are.
-```{r}
+```{r, flcolours=TRUE}
 library(imputeTS)
 plotNA.distribution(x=mean_speed$WindSpeed, colPoints=2, colBackgroundMV=3)
 ```
 Another helpful plot is the distribution bar, which shows where observations are missing.
-```{r}
+```{r, flcolours=TRUE}
 plotNA.distributionBar(x=mean_speed$WindSpeed)
 ```
 
@@ -47,7 +47,7 @@ plotNA.imputations(mean_speed$WindSpeed,mean_speed_imp$WindSpeed)
 
 We can also impute values, based on a time series model. This usually gives more realistic results, but is highly dependent on whether the time series model is suitable or not.
 
-```{r}
+```{r, flcolours=TRUE}
 mean_speed_imp <- na.kalman(mean_speed)
 plotNA.imputations(mean_speed$WindSpeed,mean_speed_imp$WindSpeed)
 ```
@@ -59,6 +59,6 @@ Instead, we could simply calculate the daily average from the other hours of the
 mean_speed <- aggregate(WindSpeed ~ Newdate, data=site1, mean, na.action=na.omit)
 ```
 This dataset now contains no missing values at all.
-```{r}
-plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l")
+```{r, flcolours=TRUE}
+plot(WindSpeed ~ Newdate, data=mean_speed, xlab="Year 2013", type="l", col=2)
 ```
