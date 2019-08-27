@@ -5,4 +5,4 @@ These pages contain the data and R code we have used when we produced the MOOC o
 
 ## Open Source Scripts
 
-[Week 6](/week6/Week6_StandAlone.html)
+[Week 6](https://levvers.github.io/dsemr/week6/Week6_StandAlone.html)
